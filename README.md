@@ -199,7 +199,7 @@ The repository contains a supplied `HELLO` recorded-run result. The receive scri
   <img src="PLOTs/plot3_ber_snr.png" alt="Simulated and theoretical BER versus SNR" width="820">
 </p>
 
-**Figure 3.** The included AWGN sweep uses 500 randomly generated OFDM symbols at each point and overlays the analytical Gray QPSK BER curve. The green marker records the supplied `HELLO` run; it is plotted just above the log-axis floor because a zero value cannot be placed on a logarithmic axis.
+**Figure 3.** The included AWGN sweep uses 500 randomly generated OFDM symbols at each point and overlays an ideal QPSK BER reference. The current `pskmod`/`pskdemod` calls use MATLAB's default binary symbol ordering rather than an explicitly Gray-ordered mapping, so the reference is a benchmark rather than an exact mapping-specific prediction. The green marker records the supplied `HELLO` run; it is plotted just above the log-axis floor because a zero value cannot be placed on a logarithmic axis.
 
 ### 4. QPSK constellation
 
