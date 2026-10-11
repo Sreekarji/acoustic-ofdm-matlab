@@ -18,7 +18,7 @@
 <br>
 
 ### Submitted in partial fulfilment of the requirements for the course
-### *Subject Name*
+### **Course-Based Project**
 
 <br>
 
@@ -41,7 +41,7 @@ This course-based project presented the design and implementation of an acoustic
 
 The implemented transmitter converted 8-bit text characters to a serial bit stream, padded the stream to OFDM payload boundaries, modulated bit pairs using π/4-offset quadrature phase-shift keying (QPSK), and mapped the QPSK values onto selected positive-frequency subcarriers. Hermitian symmetry was imposed on the frequency-domain vector so that the 256-point inverse fast Fourier transform (IFFT) produced a real-valued audio-band signal. A 64-sample cyclic prefix (CP) and a deterministic BPSK preamble were added before transmission. At the receiver, the recorded waveform was resampled to 48 kHz, band-pass filtered, synchronized by matched preamble correlation, stripped of its CP, transformed by FFT, and QPSK-demodulated to reconstruct the transmitted characters.
 
-For the supplied experiment, the message **HELLO** was recovered successfully. The reported result contained **0 bit errors in 40 assessed payload bits**, corresponding to an observed BER of zero for that individual short run, and a peak preamble-correlation magnitude of approximately **33**. The project therefore demonstrated correct ideal-link OFDM framing, Hermitian subcarrier mapping, and end-to-end message recovery. The report also identified practical limitations: the present prototype did not include channel equalization, packet-length signaling, a normalized synchronization threshold, forward-error correction, or a fully calibrated real-waveform BER-versus-\(E_b/N_0\) comparison.
+For the supplied result artifact, the message **HELLO** was recovered successfully. The reported result contained **0 bit errors in 40 assessed payload bits**, corresponding to an observed BER of zero for that individual short run, and a peak preamble-correlation magnitude of **33.203**. The project therefore demonstrated correct ideal-link OFDM framing, Hermitian subcarrier mapping, and end-to-end message recovery. The report also identified practical limitations: the present prototype did not include channel equalization, packet-length signaling, a normalized synchronization threshold, forward-error correction, or a fully calibrated real-waveform BER-versus-\(E_b/N_0\) comparison.
 
 **Keywords—** Acoustic communication, OFDM, MATLAB, QPSK, Hermitian symmetry, cyclic prefix, preamble synchronization, BER.
 
@@ -49,17 +49,32 @@ For the supplied experiment, the message **HELLO** was recovered successfully. T
 
 # Contents
 
-1. [Introduction](#1-introduction)  
-   1.1 [Background](#11-background)  
-   1.2 [Aim](#12-aim)  
-2. [Literature Survey](#2-literature-survey)  
-3. [Theoretical Analysis](#3-theoretical-analysis)  
-4. [Tool Used: MATLAB](#4-tool-used-matlab)  
-5. [System Diagram](#5-system-diagram)  
-6. [Results and Discussion](#6-results-and-discussion)  
-[Conclusion](#conclusion)  
-[Future Work](#future-work)  
+[Abstract](#abstract)<br>
+[List of Figures](#list-of-figures)<br>
+1. [Introduction](#1-introduction)<br>
+&nbsp;&nbsp;&nbsp;1.1 [Background](#11-background)<br>
+&nbsp;&nbsp;&nbsp;1.2 [Aim](#12-aim)<br>
+2. [Literature Survey](#2-literature-survey)<br>
+3. [Theoretical Analysis](#3-theoretical-analysis)<br>
+4. [Tool Used: MATLAB](#4-tool-used-matlab)<br>
+5. [System Diagram](#5-system-diagram)<br>
+6. [Results and Discussion](#6-results-and-discussion)<br>
+&nbsp;&nbsp;&nbsp;6.1 [Numerical result summary](#61-numerical-result-summary)<br>
+&nbsp;&nbsp;&nbsp;6.2 [Figure 1: Transmitted and received OFDM waveform](#62-figure-1-transmitted-and-received-ofdm-waveform)<br>
+&nbsp;&nbsp;&nbsp;6.3 [Figure 2: Frequency spectrum of the received preamble](#63-figure-2-frequency-spectrum-of-the-received-preamble)<br>
+&nbsp;&nbsp;&nbsp;6.4 [Figure 3: BER versus SNR](#64-figure-3-ber-versus-snr)<br>
+&nbsp;&nbsp;&nbsp;6.5 [Figure 4: Received QPSK constellation](#65-figure-4-received-qpsk-constellation)<br>
+&nbsp;&nbsp;&nbsp;6.6 [Discussion of receiver performance](#66-discussion-of-receiver-performance)<br>
+[Conclusion](#conclusion)<br>
+[Future Work](#future-work)<br>
 [References](#references)
+
+# List of Figures
+
+- **Figure 1.** Transmitted OFDM frame and aligned received waveform for the supplied `HELLO` run.
+- **Figure 2.** Spectrum of the first 256 received samples aligned to frame start (the received preamble), with nominal active-band boundaries.
+- **Figure 3.** Simulated BER, ideal QPSK reference, and the supplied result marker.
+- **Figure 4.** Receiver-extracted QPSK values for `HELLO`, including trailing-silence samples, overlaid on a simulated 20 dB reference constellation.
 
 <div style="page-break-after: always;"></div>
 
@@ -194,6 +209,8 @@ s_m=e^{j(\pi/4+m\pi/2)}, \qquad m\in\{0,1,2,3\}.
 
 The bit pairs were converted to integers using `bi2de(...,'left-msb')`. With MATLAB’s default binary symbol ordering, the implemented association was:
 
+**Table 1. Implemented π/4-offset QPSK bit-to-symbol association.**
+
 | Bit pair | Symbol index \(m\) | Nominal phase |
 |---|---:|---:|
 | 00 | 0 | \(45^\circ\) |
@@ -235,6 +252,8 @@ correlation = abs(conv(rx_signal, fliplr(preamble), 'valid'));
 The peak index estimated the first sample of the preamble. The first data sample was then selected using `frame_start + N_fft`, which followed the 256-sample preamble. This was a valid basic matched-filter method. However, the detector did not normalize the correlation or evaluate a detection threshold, so its peak magnitude depended on recording gain, filtering, and noise.
 
 ## 3.6 System parameters
+
+**Table 2. OFDM system parameters used in the MATLAB implementation.**
 
 | Parameter | Symbol / implementation value | Value | Significance |
 |---|---|---:|---|
@@ -304,7 +323,9 @@ The receiver read the recording, converted it to the design sampling rate, and r
 
 ## 6.1 Numerical result summary
 
-The supplied files contained a result for the message `HELLO`. Five 8-bit characters formed a 40-bit payload, which was padded to the 74-bit capacity of one OFDM data symbol. The frame itself consisted of a 256-sample preamble followed by one 320-sample CP-extended data symbol, for 576 samples before the added silence.
+The supplied files contained a result for the message `HELLO`. Five 8-bit characters formed a 40-bit payload, which was padded to the 74-bit capacity of one OFDM data symbol. The frame itself consisted of a 256-sample preamble followed by one 320-sample CP-extended data symbol, for 576 samples before the added silence. The supplied WAV contained 96,576 samples at 48 kHz (2.012 s), consistent with one second of leading silence, the 576-sample frame, and one second of trailing silence.
+
+**Table 3. Numerical results from the supplied `HELLO` receive-side artifact.**
 
 | Metric | Reported value |
 |---|---|
@@ -314,11 +335,12 @@ The supplied files contained a result for the message `HELLO`. Five 8-bit charac
 | OFDM payload capacity used | 1 symbol, padded from 40 to 74 bits |
 | Bit errors | 0 |
 | Observed BER for supplied run | 0 / 40 = 0 |
-| Peak preamble correlation | Approximately 33 |
-| Nominal plot/run SNR label | 20 dB |
+| Peak preamble correlation | 33.203 |
+| Detected frame start | Sample 48,001 (one-indexed) |
+| Nominal plot/run SNR label | 20 dB; not an SNR measured from the WAV recording |
 | Active acoustic band | 1125–7875 Hz |
 
-The result confirmed successful message recovery for the supplied short recording. The correlation magnitude was unnormalized, so it should be interpreted as a frame-detection indicator for that recording rather than as an absolute channel-quality metric. Similarly, zero errors in only 40 bits demonstrated correct operation for that frame but did not establish a statistically precise long-run BER.
+The result confirmed successful message recovery for the supplied short recording. The correlation magnitude was unnormalized, so it should be interpreted as a frame-detection indicator for that recording rather than as an absolute channel-quality metric. Similarly, zero errors in only 40 bits demonstrated correct operation for that frame but did not establish a statistically precise long-run BER. The bundled result was produced by the repository’s offline WAV workflow; it should not by itself be interpreted as a controlled over-air acoustic BER measurement.
 
 ## 6.2 Figure 1: Transmitted and received OFDM waveform
 
@@ -330,15 +352,15 @@ The result confirmed successful message recovery for the supplied short recordin
 
 The upper subplot shows the normalized transmitted frame, including the high-amplitude preamble portion and the CP-extended OFDM data interval. The lower subplot shows the corresponding aligned portion of the received signal after front-end processing. The visual correspondence between the two traces confirmed that preamble-based alignment found the intended frame and retained the short OFDM payload structure. The figure also reported zero bit errors for the supplied run.
 
-## 6.3 Figure 2: Frequency spectrum of the received OFDM frame
+## 6.3 Figure 2: Frequency spectrum of the received preamble
 
 <p align="center">
   <img src="PLOTs/plot2_spectrum.png" alt="Frequency spectrum of received OFDM signal" width="820">
 </p>
 
-**Figure 2. Frequency spectrum of the received OFDM frame with nominal active-band boundaries.**
+**Figure 2. Spectrum of the first 256 received samples aligned to frame start (the received preamble), with nominal active-band boundaries.**
 
-The spectrum concentrated energy between the indicated 1125 Hz and 7875 Hz boundaries. These limits corresponded to zero-indexed FFT bins 6 through 42 at the 187.5 Hz subcarrier spacing. The plot therefore confirmed that the carrier allocation in `shared_params.m` and the receiver band-pass filter were consistent with the intended audio-band OFDM design. Energy near the band edges was affected by the finite observation length and filter response, which was expected for a short time-domain frame.
+The plot script took the FFT of `rx_plot(1:N_fft)`. Because `rx_plot` began at `frame_start`, these 256 samples were the received preamble rather than an OFDM payload symbol. The spectrum concentrated energy between the indicated 1125 Hz and 7875 Hz boundaries, corresponding to zero-indexed FFT bins 6 through 42 at the 187.5 Hz subcarrier spacing. The figure therefore confirmed that the preamble allocation and receiver band-pass filter were consistent with the intended audio-band design. Energy near the band edges was affected by the finite observation length and filter response.
 
 ## 6.4 Figure 3: BER versus SNR
 
@@ -348,7 +370,7 @@ The spectrum concentrated energy between the indicated 1125 Hz and 7875 Hz bound
 
 **Figure 3. Simulated BER, ideal QPSK reference, and the supplied recorded-run marker.**
 
-The script generated 500 random OFDM symbols at each SNR point from 0 dB to 20 dB. The simulated BER decreased monotonically as the requested SNR increased, confirming the expected qualitative behavior of QPSK in AWGN. The red curve represented the ideal QPSK reference, while the green marker represented the supplied `HELLO` result and was drawn just above the logarithmic display floor because a BER of zero could not be plotted directly on a log scale.
+The script generated 500 random OFDM symbols at each SNR point from 0 dB to 20 dB. The simulated BER decreased monotonically as the requested SNR increased, confirming the expected qualitative behavior of QPSK in AWGN. The red curve represented the ideal QPSK reference. The green marker was deliberately placed at 20 dB and \(1.5	imes10^{-4}\), just above the logarithmic display floor, because a BER of zero could not be plotted directly on a log scale. Its horizontal coordinate was the script’s nominal label and was not an SNR estimated from the bundled WAV recording.
 
 The simulation did not coincide exactly with the ideal reference curve. The implemented correction passed to `awgn(...,'measured')` was
 
@@ -366,9 +388,9 @@ which equalled approximately \(-6.36\) dB for the configured values. This expres
   <img src="PLOTs/plot4_constellation.png" alt="Received QPSK constellation with simulated reference" width="620">
 </p>
 
-**Figure 4. Received QPSK constellation for `HELLO` overlaid on a simulated 20 dB reference constellation.**
+**Figure 4. Receiver-extracted QPSK values for `HELLO`, including trailing-silence samples, overlaid on a simulated 20 dB reference constellation.**
 
-The gray points form the four expected QPSK clusters for the simulated reference signal. The blue points are the subcarrier values recovered from the supplied `HELLO` frame. Their displacement and spread demonstrated that the recorded signal was not identical to an ideal AWGN realization: filtering, gain changes, frequency response, and acoustic-path effects altered the received values. Nevertheless, the points remained sufficiently positioned for the hard QPSK demodulator to recover the short test message without detected bit errors.
+The gray points form the four expected QPSK clusters for the simulated reference signal. `main_rx.m` continued segmenting until the end of the 2.012 s WAV file, so it extracted 151 OFDM-length intervals (5,587 displayed positive-frequency values): the first interval contained the payload and the remaining intervals were trailing silence. Consequently, the blue point at the origin and its high multiplicity were produced by demodulating trailing zeros; only the first 37 blue values belonged to the padded `HELLO` OFDM symbol. The first 40 recovered bits were retained for text reconstruction, which was sufficient for the hard QPSK demodulator to recover the short test message without detected errors.
 
 ## 6.6 Discussion of receiver performance
 
@@ -382,7 +404,7 @@ The supplied result should be interpreted carefully. A direct WAV loopback is re
 
 The project successfully implemented an acoustic OFDM communication prototype in MATLAB. The work used 256-point real-valued Hermitian OFDM, 37 active positive-frequency QPSK subcarriers, a 64-sample cyclic prefix, and a deterministic BPSK preamble. The transmitter converted an ASCII text message into a CP-extended audio waveform, while the receiver synchronized to the preamble, recovered the active subcarriers by FFT, demodulated QPSK, and reconstructed text.
 
-For the supplied demonstration, `HELLO` was recovered with zero observed bit errors in a 40-bit message and a peak preamble correlation of approximately 33. This result confirmed correct implementation of the core framing and ideal-link signal flow. The BER-vs-SNR curve showed the expected decreasing trend, but its mismatch with the ideal reference indicated that the real Hermitian waveform and symbol-mapping assumptions required more careful calibration.
+For the supplied direct-WAV result, `HELLO` was recovered with zero observed bit errors in a 40-bit message and a peak preamble correlation of 33.203. This result confirmed correct implementation of the core framing and ideal-link signal flow. The BER-versus-SNR curve showed the expected decreasing trend, but its mismatch with the ideal reference indicated that the real Hermitian waveform, CP/SNR convention, and symbol-mapping assumptions required more careful calibration.
 
 The work therefore achieved its educational objective of demonstrating an end-to-end acoustic OFDM link. It should be regarded as a foundation rather than a fully robust acoustic modem. The absence of equalization, normalized packet detection, self-contained length signaling, error detection/correction, and extensive acoustic trials limited its practical reliability in noisy or frequency-selective environments.
 
